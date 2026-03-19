@@ -11,7 +11,7 @@ jobs:
     steps:
       # 1. Lấy code
       - name: Checkout code
-        uses: actions/checkout@v6.0.2
+        uses: actions/checkout@v4
 
       # 2. Đăng nhập Docker Hub
       - name: Login Docker Hub
@@ -20,11 +20,11 @@ jobs:
       # 3. Build Docker Image
       - name: Build Docker Image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/minh0810/duan.java:latest .
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/minh0810/duan.java:${{ github.sha }} .
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/duan-java:latest .
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/duan-java:${{ github.sha }} .
 
       # 4. Push Image lên Docker Hub
       - name: Push Docker Image
         run: |
-          docker push ${{ secrets.DOCKER_USERNAME }}/minh0810/duan.java:latest
-          docker push ${{ secrets.DOCKER_USERNAME }}/minh0810/duan.java:${{ github.sha }}
+          docker push ${{ secrets.DOCKER_USERNAME }}/duan-java:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/duan-java:${{ github.sha }}
