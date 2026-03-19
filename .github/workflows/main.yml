@@ -9,21 +9,21 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Lấy code
+      # 1. Checkout code
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v6.0.2
 
-      # 2. Đăng nhập Docker Hub
+      # 2. Login Docker Hub
       - name: Login Docker Hub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-      # 3. Build Docker Image
+      # 3. Build image (build 1 lần, tag 2 lần)
       - name: Build Docker Image
         run: |
           docker build -t ${{ secrets.DOCKER_USERNAME }}/duan-java:latest .
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/duan-java:${{ github.sha }} .
+          docker tag ${{ secrets.DOCKER_USERNAME }}/duan-java:latest ${{ secrets.DOCKER_USERNAME }}/duan-java:${{ github.sha }}
 
-      # 4. Push Image lên Docker Hub
+      # 4. Push image
       - name: Push Docker Image
         run: |
           docker push ${{ secrets.DOCKER_USERNAME }}/duan-java:latest
