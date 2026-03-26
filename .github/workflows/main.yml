@@ -17,7 +17,7 @@ jobs:
       - name: Login Docker Hub
         run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
 
-      # 3. Build image (build 1 lần, tag 2 lần)
+      # 3. Build image
       - name: Build Docker Image
         run: |
           docker build -t ${{ secrets.DOCKER_USERNAME }}/duan-java:latest .
@@ -28,3 +28,29 @@ jobs:
         run: |
           docker push ${{ secrets.DOCKER_USERNAME }}/duan-java:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/duan-java:${{ github.sha }}
+
+      # 5. Deploy lên DevOps Classroom
+      - name: Triển khai lên DevOps Classroom
+        run: |
+          REPO="repository/docker"
+          CONTAINER_PORT=80
+
+          RESPONSE=$(curl -sS -w "\n%{http_code}" -X POST "${{ secrets.DEPLOY_URL }}?repo=$REPO&tag=latest&slot=7&container_port=$CONTAINER_PORT")
+
+          BODY=$(echo "$RESPONSE" | sed "$d")
+          CODE=$(echo "$RESPONSE" | tail -n1)
+
+          echo "Webhook HTTP: $CODE"
+
+          if [ "$CODE" -lt 200 ] || [ "$CODE" -ge 300 ]; then
+            echo "Deploy thất bại. Xem chi tiết trong nhóm log bên dưới."
+            echo "::group::Chi tiết webhook JSON"
+            echo "$BODY" | python3 -m json.tool 2>/dev/null || echo "$BODY"
+            echo "::endgroup::"
+            exit 1
+          fi
+
+          echo "Deploy thành công."
+          echo "::group::Chi tiết webhook JSON"
+          echo "$BODY" | python3 -m json.tool 2>/dev/null || echo "$BODY"
+          echo "::endgroup::"
