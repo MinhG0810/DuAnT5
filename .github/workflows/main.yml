@@ -32,7 +32,7 @@ jobs:
       # 5. Deploy lên DevOps Classroom
       - name: Triển khai lên DevOps Classroom
         run: |
-          REPO="repository/docker"
+          REPO="${{ secrets.DOCKER_USERNAME }}/duan-java:latest"
           CONTAINER_PORT=80
 
           RESPONSE=$(curl -sS -w "\n%{http_code}" -X POST "${{ secrets.DEPLOY_URL }}?repo=$REPO&tag=latest&slot=7&container_port=$CONTAINER_PORT")
